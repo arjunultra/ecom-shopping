@@ -51,11 +51,12 @@
     </section>
 
     <!-- Product Detail Section -->
+    <!-- Product Detail Section -->
     <section class="product-detail-section">
         <div class="container">
             <div class="row">
                 <!-- Image Gallery -->
-                <div class="col-12 col-md-6 col-lg-6">
+                <div class="col-12 col-md-12 col-lg-6">
                     <div class="product-images-container">
                         <div class="product-gallery">
                             <div class="thumbnails-container">
@@ -72,7 +73,7 @@
                             <div class="main-image-container">
                                 <div class="main-image-wrapper">
                                     <img src="" alt="Elegant Gold Bangle" class="main-image" id="mainProductImage">
-                                    <div class="zoom-indicator"><i class="bi bi-zoom-in"></i> Click to zoom</div>
+                                    <div class="zoom-indicator"><i class="bi bi-zoom-in"></i>Click to zoom</div>
                                 </div>
                             </div>
                         </div>
@@ -80,7 +81,7 @@
                 </div>
 
                 <!-- Product Information -->
-                <div class="col-12 col-lg-6">
+                <div class="col-12 col-md-12 col-lg-6">
                     <div class="product-info-container">
                         <!-- Header -->
                         <div class="product-header">
@@ -96,7 +97,7 @@
                             <div class="product-sku-availability">
                                 <span class="product-sku">SKU: <span id="productSku">BNG001</span></span>
                                 <span class="availability in-stock" id="availabilityStatus"><i
-                                        class="bi bi-check-circle"></i> In Stock</span>
+                                        class="bi bi-check-circle"></i>In Stock</span>
                             </div>
                         </div>
 
@@ -112,69 +113,52 @@
                                 traditional designs. Perfect for special occasions and daily wear.</p>
                         </div>
 
-                        <!-- Actions: Add to Cart, Buy Now, Wishlist -->
-                        <div class="container">
-                            <div class="product-actions">
-                                <!-- Quantity Selector Row -->
-                                <div class="row mb-4">
-                                    <div class="col-12">
-                                        <div
-                                            class="product-view-quantity-selector d-flex align-items-center justify-content-start">
-                                            <label for="quantityInput"
-                                                class="product-view-quantity-label me-3">Quantity:</label>
-                                            <div class="product-view-quantity-controls d-flex">
-                                                <button type="button" class="product-view-quantity-btn minus">
-                                                    <i class="bi bi-dash"></i>
-                                                </button>
-                                                <input type="number" id="quantityInput" value="1" min="1" max="10"
-                                                    class="product-view-quantity-input text-center">
-                                                <button type="button" class="product-view-quantity-btn plus">
-                                                    <i class="bi bi-plus"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
+                        <!-- Actions -->
+                        <div class="product-actions">
+                            <!-- Quantity Selector -->
+                            <div class="product-view-quantity-selector">
+                                <label for="quantityInput" class="product-view-quantity-label">Quantity:</label>
+                                <div class="product-view-quantity-controls">
+                                    <button type="button" class="product-view-quantity-btn minus">
+                                        <i class="bi bi-dash"></i>
+                                    </button>
+                                    <input type="number" id="quantityInput" value="1" min="1" max="10"
+                                        class="product-view-quantity-input text-center">
+                                    <button type="button" class="product-view-quantity-btn plus">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
                                 </div>
+                            </div>
 
-                                <!-- Action Buttons Row -->
-                                <div class="row mb-3">
-                                    <div class="col-12 col-md-6 mb-2 mb-md-0">
-                                        <button class="btn product-view-add-to-cart-btn w-100">
-                                            <i class="bi bi-bag-plus me-2"></i>Add to Cart
-                                        </button>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <a href="checkout.php">
-                                            <button class="btn product-view-buy-now-btn w-100">
-                                                <i class="bi bi-lightning me-2"></i>Buy Now
-                                            </button>
-                                        </a>
-                                    </div>
-                                </div>
+                            <!-- Action Buttons -->
+                            <div class="action-buttons">
+                                <button class="btn product-view-add-to-cart-btn">
+                                    <i class="bi bi-bag-plus"></i>Add to Cart
+                                </button>
+                                <button class="btn product-view-buy-now-btn">
+                                    <i class="bi bi-lightning"></i>Buy Now
+                                </button>
+                            </div>
 
-                                <!-- Secondary Actions Row -->
-                                <div class="row">
-                                    <div class="col-12 text-center">
-                                        <button class="product-view-action-link product-view-wishlist-link">
-                                            <i class="bi bi-heart me-2"></i>Add to Wishlist
-                                        </button>
-                                    </div>
-                                </div>
+                            <!-- Secondary Actions -->
+                            <div class="secondary-actions">
+                                <button class="product-view-action-link product-view-wishlist-link">
+                                    <i class="bi bi-heart"></i>Add to Wishlist
+                                </button>
                             </div>
                         </div>
 
-
-
                         <!-- Shipping Info -->
                         <div class="shipping-info">
-                            <div class="info-item"><i class="bi bi-truck"></i> Free Shipping on orders over ₹999</div>
-                            <div class="info-item"><i class="bi bi-arrow-clockwise"></i> 30-Day Easy Returns</div>
+                            <div class="info-item"><i class="bi bi-truck"></i>Free Shipping on orders over ₹999</div>
+                            <div class="info-item"><i class="bi bi-arrow-clockwise"></i>30-Day Easy Returns</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
 
     <!-- Product Details Tabs -->
     <section class="product-details-section">

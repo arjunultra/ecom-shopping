@@ -796,7 +796,7 @@
                             </div>
 
                             <!-- Product Card 9 -->
-                            <div class="col-12 col-md-6 col-lg-4 product-col">
+                            <div class="col-12 col-md-12 col-lg-4 product-col">
                                 <div class="product-item d-flex" data-category="pendants" data-price="4950"
                                     data-rating="4">
                                     <div class="product-card h-100">

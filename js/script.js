@@ -911,21 +911,18 @@ document.addEventListener("DOMContentLoaded", function () {
   // Initialize page
   updateFilters();
 });
-// product view page
 // Product Detail Page JavaScript - Modern ES6+ with Scoped Classes
 class ProductDetailPage {
   constructor() {
     this.productDatabase = this.initializeProductDatabase();
     this.currentProduct = null;
     this.currentImageIndex = 0;
-    this.isWishlistActive = false;
     this.currentQuantity = 1;
-    this.selectedVariants = {};
 
     // Vertical carousel properties
-    this.thumbnailCarousel = {
+    this.carousel = {
       currentIndex: 0,
-      itemsVisible: 5, // Show max 5 thumbnails vertically
+      itemsVisible: 5,
       totalItems: 0,
       container: null,
       isVideoShowing: false,
@@ -944,64 +941,31 @@ class ProductDetailPage {
         sku: "BNG001",
         price: 2850,
         originalPrice: 3200,
-        discount: "11% off",
         rating: 4.2,
         reviewCount: 24,
         availability: "in-stock",
-        badges: ["sale"],
         description:
-          "This elegant gold bangle showcases exceptional craftsmanship with traditional designs. Perfect for special occasions and daily wear, featuring intricate patterns that reflect timeless beauty.",
-        fullDescription: `
-                    <p>This exquisite gold bangle is a perfect blend of traditional craftsmanship and contemporary elegance. Meticulously handcrafted by skilled artisans, each piece features intricate patterns that have been passed down through generations.</p>
-                    
-                    <p>The bangle is made from high-quality materials with 18K gold plating that ensures long-lasting beauty and resistance to tarnishing. The comfortable fit makes it suitable for daily wear, while its stunning design makes it perfect for special occasions and celebrations.</p>
-                    
-                    <h6>Design Features:</h6>
-                    <ul>
-                        <li><i class="bi bi-check2-all text-pink"></i>Traditional motifs with modern appeal</li>
-                        <li><i class="bi bi-check2-all text-pink"></i>Smooth edges for comfortable wearing</li>
-                        <li><i class="bi bi-check2-all text-pink"></i>Lustrous finish that catches light beautifully</li>
-                        <li><i class="bi bi-check2-all text-pink"></i>Versatile design suitable for all occasions</li>
-                    </ul>
-                `,
-        features: [
-          "18K Gold Plated",
-          "Handcrafted Design",
-          "Traditional Patterns",
-          "Comfortable Fit",
-          "Tarnish Resistant",
-        ],
-        specifications: {
-          Material: "18K Gold Plated Brass",
-          Weight: "25 grams",
-          Diameter: "6.5 cm",
-          Width: "8 mm",
-          Finish: "High Polish",
-          Closure: "Hinged",
-          Care: "Dry cloth cleaning recommended",
-          Warranty: "1 year manufacturer warranty",
-        },
-        // Extended images array (8 images to test vertical carousel)
+          "This elegant gold bangle showcases exceptional craftsmanship with traditional designs. Perfect for special occasions and daily wear.",
+        // IMPORTANT: All 8 images for testing
         images: [
           "images/bangles.webp",
           "images/bangles-1.webp",
           "images/bangles-2.webp",
           "images/bangles-3.webp",
           "images/bangles-4.webp",
-          "images/bangles-5.webp",
-          "images/bangles-6.webp",
-          "images/bangles-7.webp",
+          "images/oxidized-silver-bangles.webp",
+          "images/diamond-studded-bangles.webp",
+          "images/stone-bangle.webp",
         ],
-        // Videos array (null means no video for that image)
         videos: [
-          "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4", // Sample video for testing
-          null,
-          "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4", // Sample video
-          null,
-          "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_5mb.mp4", // Sample video
           null,
           null,
           null,
+          null,
+          null,
+          null,
+          null,
+          "https://www.youtube.com/embed/3nXRA0vCpaE", // YouTube video at index 7
         ],
         thumbnails: [
           "images/bangles.webp",
@@ -1009,258 +973,159 @@ class ProductDetailPage {
           "images/bangles-2.webp",
           "images/bangles-3.webp",
           "images/bangles-4.webp",
-          "images/bangles-5.webp",
-          "images/bangles-6.webp",
-          "images/bangles-7.webp",
-        ],
-        variants: {
-          size: {
-            label: "Size",
-            options: ["Medium", "Large"],
-            default: "Medium",
-          },
-        },
-        reviews: [
-          {
-            id: 1,
-            name: "Priya Sharma",
-            rating: 5,
-            date: "2 days ago",
-            comment:
-              "Absolutely beautiful bangle! The craftsmanship is excellent and it looks exactly as shown in the pictures. Very happy with my purchase.",
-          },
-          {
-            id: 2,
-            name: "Anjali Patel",
-            rating: 4,
-            date: "1 week ago",
-            comment:
-              "Great quality and fast delivery. The bangle fits perfectly and the gold finish is really nice. Would definitely recommend!",
-          },
+          "images/oxidized-silver-bangles.webp",
+          "images/diamond-studded-bangles.webp",
+          "images/stone-bangle.webp",
         ],
       },
     };
   }
 
   init() {
-    this.bindEvents();
     this.loadProduct();
     this.initializeImageGallery();
     this.initializeQuantityControls();
-    this.initializeVariantSelection();
-    this.loadRelatedProducts();
+    this.bindEvents();
   }
 
-  // Enhanced image gallery initialization
+  loadProduct() {
+    const productId =
+      new URLSearchParams(window.location.search).get("id") || "1";
+    this.currentProduct = this.productDatabase[productId];
+
+    if (!this.currentProduct) {
+      console.error("Product not found");
+      return;
+    }
+
+    this.populateProductData();
+  }
+
+  populateProductData() {
+    const product = this.currentProduct;
+
+    // Update product info
+    const elements = {
+      productTitle: product.title,
+      productSku: product.sku,
+      productDescription: product.description,
+      currentPrice: `₹${product.price.toLocaleString()}`,
+      originalPrice: `₹${product.originalPrice.toLocaleString()}`,
+      ratingCount: `(${product.reviewCount} reviews)`,
+    };
+
+    Object.entries(elements).forEach(([id, value]) => {
+      const element = document.getElementById(id);
+      if (element) element.textContent = value;
+    });
+
+    // Update rating stars
+    const starsContainer = document.getElementById("ratingStars");
+    if (starsContainer) {
+      starsContainer.innerHTML = this.generateStarsHTML(product.rating);
+    }
+  }
+
+  generateStarsHTML(rating) {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    let html = "";
+
+    for (let i = 0; i < fullStars; i++) {
+      html += '<i class="bi bi-star-fill"></i>';
+    }
+    if (hasHalfStar) {
+      html += '<i class="bi bi-star-half"></i>';
+    }
+    for (let i = 0; i < emptyStars; i++) {
+      html += '<i class="bi bi-star"></i>';
+    }
+
+    return html;
+  }
+
   initializeImageGallery() {
     if (!this.currentProduct) return;
 
     const { images, thumbnails, videos } = this.currentProduct;
     this.updateMainImage(images[0]);
-    this.setupVerticalThumbnailCarousel(thumbnails, videos);
-    this.bindImageEvents();
-    this.injectVerticalCarouselStyles();
+    this.setupResponsiveCarousel(thumbnails, videos);
     this.addVideoSupport();
   }
 
-  // Inject vertical carousel styles
-  injectVerticalCarouselStyles() {
-    const styleId = "vertical-carousel-styles";
-    if (document.getElementById(styleId)) return;
+  // NEW: Setup responsive carousel that adapts to screen size
+  setupResponsiveCarousel(thumbnails, videos = []) {
+    const container = document.querySelector(".thumbnails-container");
+    if (!container || !thumbnails) return;
 
-    const style = document.createElement("style");
-    style.id = styleId;
-    style.textContent = `
-            /* Override horizontal styles for vertical carousel */
-            .product-detail-section .thumbnails-container {
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 12px !important;
-                width: 100px !important;
-                height: 500px !important;
-                overflow: hidden !important;
-                padding-right: 8px !important;
-                position: relative !important;
-            }
-            
-            .vertical-thumbnail-track {
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 12px !important;
-                transition: transform 0.3s ease !important;
-                width: 100% !important;
-            }
-            
-            .product-detail-section .thumbnail-wrapper {
-                width: 80px !important;
-                height: 80px !important;
-                flex: 0 0 auto !important;
-                position: relative !important;
-            }
-            
-            .product-detail-section .thumbnail-wrapper.video-thumbnail::before {
-                content: '▶';
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: rgba(0,0,0,0.8);
-                color: white;
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 8px;
-                z-index: 2;
-                pointer-events: none;
-                font-family: Arial, sans-serif;
-            }
-            
-            .vertical-carousel-nav {
-                position: absolute;
-                left: 50%;
-                transform: translateX(-50%);
-                background: rgba(255,255,255,0.95);
-                border: 1px solid #e5e7eb;
-                border-radius: 50%;
-                width: 28px;
-                height: 28px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                z-index: 10;
-                font-size: 12px;
-                font-weight: bold;
-                transition: all 0.2s ease;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            }
-            
-            .vertical-carousel-nav:hover {
-                background: var(--violet, #6f42c1);
-                color: white;
-                transform: translateX(-50%) scale(1.1);
-            }
-            
-            .vertical-carousel-nav.up {
-                top: -5px;
-            }
-            
-            .vertical-carousel-nav.down {
-                bottom: -5px;
-            }
-            
-            .vertical-carousel-nav:disabled {
-                opacity: 0.3;
-                cursor: not-allowed;
-                transform: translateX(-50%) scale(1);
-            }
-            
-            .product-detail-section .main-image-wrapper {
-                position: relative;
-            }
-            
-            .product-detail-section .main-video {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                display: none;
-                border-radius: 12px;
-            }
-            
-            .video-controls {
-                position: absolute;
-                bottom: 16px;
-                right: 16px;
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-                z-index: 5;
-            }
-            
-            .video-control-btn {
-                background: rgba(0,0,0,0.8);
-                color: white;
-                border: none;
-                padding: 8px 12px;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 11px;
-                display: none;
-                align-items: center;
-                gap: 4px;
-                transition: all 0.2s ease;
-                backdrop-filter: blur(5px);
-                white-space: nowrap;
-            }
-            
-            .video-control-btn:hover {
-                background: var(--violet, #6f42c1);
-                transform: translateY(-1px);
-            }
-            
-            .video-control-btn.show {
-                display: flex;
-            }
-            
-            /* Mobile adjustments */
-            @media (max-width: 767.98px) {
-                .product-detail-section .thumbnails-container {
-                    width: 70px !important;
-                    height: 350px !important;
-                }
-                
-                .product-detail-section .thumbnail-wrapper {
-                    width: 60px !important;
-                    height: 60px !important;
-                }
-                
-                .vertical-carousel-nav {
-                    width: 24px;
-                    height: 24px;
-                    font-size: 10px;
-                }
-                
-                .video-controls {
-                    bottom: 10px;
-                    right: 10px;
-                }
-                
-                .video-control-btn {
-                    font-size: 9px;
-                    padding: 6px 8px;
-                }
-            }
-        `;
+    this.carousel.totalItems = thumbnails.length;
+    this.carousel.container = container;
 
-    document.head.appendChild(style);
+    // COMPLETELY REPLACE existing HTML content
+    container.innerHTML = "";
+
+    // Detect screen size and setup accordingly
+    this.setupCarouselForCurrentScreen(thumbnails, videos);
+
+    // Listen for window resize to adjust layout
+    window.addEventListener("resize", () => {
+      this.handleWindowResize(thumbnails, videos);
+    });
   }
 
-  // Setup vertical thumbnail carousel
-  setupVerticalThumbnailCarousel(thumbnails, videos = []) {
-    const thumbnailContainer = document.querySelector(".thumbnails-container");
-    if (!thumbnailContainer || !thumbnails) return;
+  setupCarouselForCurrentScreen(thumbnails, videos) {
+    const container = this.carousel.container;
+    const screenWidth = window.innerWidth;
 
-    this.thumbnailCarousel.totalItems = thumbnails.length;
-    this.thumbnailCarousel.container = thumbnailContainer;
+    // Clear container
+    container.innerHTML = "";
 
-    // Clear existing content
-    thumbnailContainer.innerHTML = "";
+    if (screenWidth <= 767.98) {
+      // Mobile: Horizontal scrollable
+      this.setupHorizontalCarousel(thumbnails, videos, "mobile");
+    } else if (screenWidth <= 991.98) {
+      // Tablet: Horizontal scrollable
+      this.setupHorizontalCarousel(thumbnails, videos, "tablet");
+    } else {
+      // Desktop: Vertical with navigation
+      this.setupVerticalCarousel(thumbnails, videos);
+    }
+  }
 
-    // Create vertical carousel track
-    const carouselTrack = document.createElement("div");
-    carouselTrack.className = "vertical-thumbnail-track";
+  setupHorizontalCarousel(thumbnails, videos, deviceType) {
+    const container = this.carousel.container;
 
-    // Create all thumbnails
+    // Create horizontal track
+    const track = document.createElement("div");
+    track.className = "horizontal-thumbnail-track";
+    track.style.cssText = `
+            display: flex !important;
+            flex-direction: row !important;
+            gap: ${deviceType === "mobile" ? "8px" : "12px"} !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            padding-bottom: 8px !important;
+            width: 100% !important;
+            scroll-behavior: smooth !important;
+        `;
+
+    // Create ALL thumbnails
     thumbnails.forEach((thumb, index) => {
       const wrapper = document.createElement("div");
       wrapper.className = `thumbnail-wrapper ${index === 0 ? "active" : ""}${
         videos[index] ? " video-thumbnail" : ""
       }`;
       wrapper.dataset.image = index;
-      wrapper.dataset.hasVideo = !!videos[index];
+
+      // Set size based on device
+      const size = deviceType === "mobile" ? "60px" : "70px";
+      wrapper.style.cssText = `
+                width: ${size} !important;
+                height: ${size} !important;
+                min-width: ${size} !important;
+                flex: 0 0 auto !important;
+            `;
 
       const img = document.createElement("img");
       img.src = thumb;
@@ -1268,164 +1133,302 @@ class ProductDetailPage {
       img.className = "thumbnail-image";
 
       wrapper.appendChild(img);
-      carouselTrack.appendChild(wrapper);
+      track.appendChild(wrapper);
     });
 
-    thumbnailContainer.appendChild(carouselTrack);
+    container.appendChild(track);
+    console.log(
+      `Created ${thumbnails.length} horizontal thumbnails for ${deviceType}`
+    );
+  }
 
-    // Add navigation if more than 5 items
-    if (
-      this.thumbnailCarousel.totalItems > this.thumbnailCarousel.itemsVisible
-    ) {
+  setupVerticalCarousel(thumbnails, videos) {
+    const container = this.carousel.container;
+
+    // Create vertical track
+    const track = document.createElement("div");
+    track.className = "vertical-thumbnail-track";
+    track.style.cssText = `
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 12px !important;
+            transition: transform 0.3s ease !important;
+            width: 100% !important;
+        `;
+
+    // Create ALL thumbnails
+    thumbnails.forEach((thumb, index) => {
+      const wrapper = document.createElement("div");
+      wrapper.className = `thumbnail-wrapper ${index === 0 ? "active" : ""}${
+        videos[index] ? " video-thumbnail" : ""
+      }`;
+      wrapper.dataset.image = index;
+
+      wrapper.style.cssText = `
+                width: 80px !important;
+                height: 80px !important;
+                flex: 0 0 auto !important;
+            `;
+
+      const img = document.createElement("img");
+      img.src = thumb;
+      img.alt = `Product view ${index + 1}`;
+      img.className = "thumbnail-image";
+
+      wrapper.appendChild(img);
+      track.appendChild(wrapper);
+    });
+
+    container.appendChild(track);
+
+    // Add navigation if needed (more than 5 items)
+    if (this.carousel.totalItems > this.carousel.itemsVisible) {
       this.addVerticalCarouselNavigation();
     }
 
-    this.updateVerticalCarouselPosition();
+    this.updateCarouselPosition();
+    console.log(`Created ${thumbnails.length} vertical thumbnails for desktop`);
   }
 
-  // Add video support to existing main image area
-  addVideoSupport() {
-    const mainImageWrapper = document.querySelector(".main-image-wrapper");
-    if (!mainImageWrapper) return;
-
-    // Add video element
-    const video = document.createElement("video");
-    video.id = "mainProductVideo";
-    video.className = "main-video";
-    video.controls = true;
-    video.preload = "metadata";
-    mainImageWrapper.appendChild(video);
-
-    // Add video controls
-    const controlsDiv = document.createElement("div");
-    controlsDiv.className = "video-controls";
-
-    const playBtn = document.createElement("button");
-    playBtn.className = "video-control-btn";
-    playBtn.id = "playVideoBtn";
-    playBtn.innerHTML = '<i class="bi bi-play-circle"></i> Play Video';
-    playBtn.onclick = () => this.toggleToVideo();
-
-    const imageBtn = document.createElement("button");
-    imageBtn.className = "video-control-btn";
-    imageBtn.id = "showImageBtn";
-    imageBtn.innerHTML = '<i class="bi bi-image"></i> Show Image';
-    imageBtn.onclick = () => this.toggleToImage();
-
-    controlsDiv.appendChild(playBtn);
-    controlsDiv.appendChild(imageBtn);
-    mainImageWrapper.appendChild(controlsDiv);
-
-    this.updateVideoControls();
+  handleWindowResize(thumbnails, videos) {
+    // Debounce resize events
+    clearTimeout(this.resizeTimeout);
+    this.resizeTimeout = setTimeout(() => {
+      this.setupCarouselForCurrentScreen(thumbnails, videos);
+    }, 100);
   }
 
-  // Add vertical carousel navigation buttons
   addVerticalCarouselNavigation() {
-    const container = this.thumbnailCarousel.container;
+    const container = this.carousel.container;
 
+    // Up button
     const upBtn = document.createElement("button");
     upBtn.className = "vertical-carousel-nav up";
     upBtn.innerHTML = "↑";
-    upBtn.onclick = () => this.moveVerticalCarousel("up");
+    upBtn.style.cssText = `
+            position: absolute;
+            left: 50%;
+            top: -5px;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.95);
+            border: 1px solid #e5e7eb;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            font-size: 12px;
+            font-weight: bold;
+        `;
+    upBtn.onclick = () => this.moveCarousel("up");
 
+    // Down button
     const downBtn = document.createElement("button");
     downBtn.className = "vertical-carousel-nav down";
     downBtn.innerHTML = "↓";
-    downBtn.onclick = () => this.moveVerticalCarousel("down");
+    downBtn.style.cssText = `
+            position: absolute;
+            left: 50%;
+            bottom: -5px;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.95);
+            border: 1px solid #e5e7eb;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            font-size: 12px;
+            font-weight: bold;
+        `;
+    downBtn.onclick = () => this.moveCarousel("down");
 
     container.appendChild(upBtn);
     container.appendChild(downBtn);
 
-    this.updateVerticalNavigationButtons();
+    this.updateNavigationButtons();
   }
 
-  // Move vertical carousel up or down
-  moveVerticalCarousel(direction) {
+  moveCarousel(direction) {
     const maxIndex = Math.max(
       0,
-      this.thumbnailCarousel.totalItems - this.thumbnailCarousel.itemsVisible
+      this.carousel.totalItems - this.carousel.itemsVisible
     );
 
-    if (direction === "up" && this.thumbnailCarousel.currentIndex > 0) {
-      this.thumbnailCarousel.currentIndex--;
-    } else if (
-      direction === "down" &&
-      this.thumbnailCarousel.currentIndex < maxIndex
-    ) {
-      this.thumbnailCarousel.currentIndex++;
+    if (direction === "up" && this.carousel.currentIndex > 0) {
+      this.carousel.currentIndex--;
+    } else if (direction === "down" && this.carousel.currentIndex < maxIndex) {
+      this.carousel.currentIndex++;
     }
 
-    this.updateVerticalCarouselPosition();
-    this.updateVerticalNavigationButtons();
+    this.updateCarouselPosition();
+    this.updateNavigationButtons();
   }
 
-  // Update vertical carousel position
-  updateVerticalCarouselPosition() {
-    const track = this.thumbnailCarousel.container.querySelector(
+  updateCarouselPosition() {
+    const track = this.carousel.container.querySelector(
       ".vertical-thumbnail-track"
     );
     if (!track) return;
 
-    const translateY =
-      -this.thumbnailCarousel.currentIndex * this.thumbnailCarousel.itemHeight;
+    const translateY = -this.carousel.currentIndex * this.carousel.itemHeight;
     track.style.transform = `translateY(${translateY}px)`;
   }
 
-  // Update vertical navigation buttons
-  updateVerticalNavigationButtons() {
-    const upBtn = this.thumbnailCarousel.container.querySelector(
+  updateNavigationButtons() {
+    const upBtn = this.carousel.container.querySelector(
       ".vertical-carousel-nav.up"
     );
-    const downBtn = this.thumbnailCarousel.container.querySelector(
+    const downBtn = this.carousel.container.querySelector(
       ".vertical-carousel-nav.down"
     );
 
     if (upBtn && downBtn) {
       const maxIndex = Math.max(
         0,
-        this.thumbnailCarousel.totalItems - this.thumbnailCarousel.itemsVisible
+        this.carousel.totalItems - this.carousel.itemsVisible
       );
+      upBtn.disabled = this.carousel.currentIndex === 0;
+      downBtn.disabled = this.carousel.currentIndex >= maxIndex;
 
-      upBtn.disabled = this.thumbnailCarousel.currentIndex === 0;
-      downBtn.disabled = this.thumbnailCarousel.currentIndex >= maxIndex;
+      // Update button styles
+      upBtn.style.opacity = upBtn.disabled ? "0.3" : "1";
+      downBtn.style.opacity = downBtn.disabled ? "0.3" : "1";
     }
   }
 
-  // Toggle to video
+  // UPDATED: Add YouTube video support with iframe container
+  addVideoSupport() {
+    const wrapper = document.querySelector(".main-image-wrapper");
+    if (!wrapper) return;
+
+    // Create iframe container for YouTube videos
+    const videoContainer = document.createElement("div");
+    videoContainer.id = "mainVideoContainer";
+    videoContainer.style.cssText = `
+            width: 100%;
+            height: 100%;
+            display: none;
+            border-radius: 12px;
+            overflow: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+        `;
+    wrapper.appendChild(videoContainer);
+
+    // Add video controls
+    const controls = document.createElement("div");
+    controls.className = "video-controls";
+    controls.style.cssText = `
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 5;
+        `;
+
+    const playBtn = document.createElement("button");
+    playBtn.className = "video-control-btn";
+    playBtn.id = "playVideoBtn";
+    playBtn.innerHTML = '<i class="bi bi-play-circle"></i> Play Video';
+    playBtn.style.cssText = `
+            background: rgba(0,0,0,0.8);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            display: none;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+        `;
+    playBtn.onclick = () => this.toggleToVideo();
+
+    const imageBtn = document.createElement("button");
+    imageBtn.className = "video-control-btn";
+    imageBtn.id = "showImageBtn";
+    imageBtn.innerHTML = '<i class="bi bi-image"></i> Show Image';
+    imageBtn.style.cssText = `
+            background: rgba(0,0,0,0.8);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            display: none;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+        `;
+    imageBtn.onclick = () => this.toggleToImage();
+
+    controls.appendChild(playBtn);
+    controls.appendChild(imageBtn);
+    wrapper.appendChild(controls);
+
+    this.updateVideoControls();
+  }
+
+  // UPDATED: Toggle to YouTube video with iframe
   toggleToVideo() {
     const mainImage = document.getElementById("mainProductImage");
-    const mainVideo = document.getElementById("mainProductVideo");
+    const videoContainer = document.getElementById("mainVideoContainer");
     const videoSrc = this.currentProduct.videos[this.currentImageIndex];
 
     if (!videoSrc) return;
 
     mainImage.style.display = "none";
-    mainVideo.style.display = "block";
-    mainVideo.src = videoSrc;
 
-    this.thumbnailCarousel.isVideoShowing = true;
+    // Create YouTube iframe with all proper attributes
+    videoContainer.innerHTML = `
+            <iframe 
+                width="100%" 
+                height="100%" 
+                src="${videoSrc}?autoplay=1&mute=1" 
+                title="YouTube video player" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen>
+            </iframe>
+        `;
+    videoContainer.style.display = "block";
+
+    this.carousel.isVideoShowing = true;
     this.updateVideoControls();
 
-    // Auto play
-    mainVideo.play().catch((e) => console.log("Autoplay prevented:", e));
+    console.log("YouTube video loaded:", videoSrc);
   }
 
-  // Toggle to image
+  // UPDATED: Toggle to image and stop YouTube video
   toggleToImage() {
     const mainImage = document.getElementById("mainProductImage");
-    const mainVideo = document.getElementById("mainProductVideo");
+    const videoContainer = document.getElementById("mainVideoContainer");
 
     mainImage.style.display = "block";
-    mainVideo.style.display = "none";
-    if (mainVideo.src) {
-      mainVideo.pause();
-    }
+    videoContainer.style.display = "none";
 
-    this.thumbnailCarousel.isVideoShowing = false;
+    // Clear iframe to stop YouTube video completely
+    videoContainer.innerHTML = "";
+
+    this.carousel.isVideoShowing = false;
     this.updateVideoControls();
+
+    console.log("Switched back to image view");
   }
 
-  // Update video controls visibility
   updateVideoControls() {
     const playBtn = document.getElementById("playVideoBtn");
     const imageBtn = document.getElementById("showImageBtn");
@@ -1434,73 +1437,13 @@ class ProductDetailPage {
       this.currentProduct.videos[this.currentImageIndex];
 
     if (playBtn && imageBtn) {
-      if (this.thumbnailCarousel.isVideoShowing) {
-        playBtn.classList.remove("show");
-        imageBtn.classList.add("show");
+      if (this.carousel.isVideoShowing) {
+        playBtn.style.display = "none";
+        imageBtn.style.display = "flex";
       } else {
-        playBtn.classList.toggle("show", !!hasVideo);
-        imageBtn.classList.remove("show");
+        playBtn.style.display = hasVideo ? "flex" : "none";
+        imageBtn.style.display = "none";
       }
-    }
-  }
-
-  // Ensure thumbnail is visible in vertical carousel
-  ensureThumbnailVisible(targetIndex) {
-    if (
-      this.thumbnailCarousel.totalItems <= this.thumbnailCarousel.itemsVisible
-    )
-      return;
-
-    const currentStart = this.thumbnailCarousel.currentIndex;
-    const currentEnd = currentStart + this.thumbnailCarousel.itemsVisible - 1;
-
-    if (targetIndex < currentStart) {
-      this.thumbnailCarousel.currentIndex = targetIndex;
-    } else if (targetIndex > currentEnd) {
-      this.thumbnailCarousel.currentIndex = Math.min(
-        targetIndex - this.thumbnailCarousel.itemsVisible + 1,
-        this.thumbnailCarousel.totalItems - this.thumbnailCarousel.itemsVisible
-      );
-    }
-
-    this.updateVerticalCarouselPosition();
-    this.updateVerticalNavigationButtons();
-  }
-
-  // Enhanced thumbnail click handler
-  handleThumbnailClick(thumbnailWrapper) {
-    const imageIndex = parseInt(thumbnailWrapper.dataset.image);
-    this.currentImageIndex = imageIndex;
-
-    // Update active thumbnail
-    document
-      .querySelectorAll(".thumbnail-wrapper")
-      .forEach((thumb) => thumb.classList.remove("active"));
-    thumbnailWrapper.classList.add("active");
-
-    // Update main image
-    this.updateMainImage(this.currentProduct.images[imageIndex]);
-
-    // Always show image first when thumbnail is clicked
-    this.toggleToImage();
-
-    // Update video controls
-    this.updateVideoControls();
-
-    // Ensure thumbnail is visible
-    this.ensureThumbnailVisible(imageIndex);
-  }
-
-  // Enhanced image zoom (only for images)
-  handleImageZoom() {
-    if (this.thumbnailCarousel.isVideoShowing) return;
-
-    const modal = document.getElementById("imageZoomModal");
-    const zoomedImage = document.getElementById("zoomedImage");
-    if (modal && zoomedImage) {
-      zoomedImage.src = this.currentProduct.images[this.currentImageIndex];
-      zoomedImage.alt = this.currentProduct.title;
-      $(modal).modal("show");
     }
   }
 
@@ -1512,116 +1455,46 @@ class ProductDetailPage {
     }
   }
 
-  bindImageEvents() {
-    document.addEventListener("click", (e) => {
-      if (e.target.closest(".thumbnail-wrapper")) {
-        this.handleThumbnailClick(e.target.closest(".thumbnail-wrapper"));
-      }
-    });
+  handleThumbnailClick(wrapper) {
+    const imageIndex = parseInt(wrapper.dataset.image);
+    this.currentImageIndex = imageIndex;
 
-    document.addEventListener("click", (e) => {
-      if (e.target.closest(".main-image-wrapper .main-image")) {
-        this.handleImageZoom();
-      }
-    });
-  }
+    // Update active thumbnail
+    document
+      .querySelectorAll(".thumbnail-wrapper")
+      .forEach((thumb) => thumb.classList.remove("active"));
+    wrapper.classList.add("active");
 
-  // ... ALL OTHER EXISTING METHODS REMAIN EXACTLY THE SAME ...
+    // Update main image
+    this.updateMainImage(this.currentProduct.images[imageIndex]);
+    this.toggleToImage(); // Always show image first when thumbnail is clicked
+    this.updateVideoControls();
 
-  getProductIdFromUrl() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get("id") || "1";
-  }
-
-  loadProduct() {
-    const productId = this.getProductIdFromUrl();
-    this.currentProduct = this.productDatabase[productId];
-    if (!this.currentProduct) {
-      this.handleProductNotFound();
-      return;
-    }
-    this.populateProductData();
-  }
-
-  handleProductNotFound() {
-    console.error("Product not found");
-    document.querySelector(".product-detail-section").innerHTML = `
-            <div class="container">
-                <div class="text-center py-5">
-                    <h2>Product Not Found</h2>
-                    <p>The product you're looking for doesn't exist.</p>
-                    <a href="products.php" class="btn btn-primary">Back to Products</a>
-                </div>
-            </div>
-        `;
-  }
-
-  populateProductData() {
-    const product = this.currentProduct;
-    document.title = `${product.title} - Women's Accessories`;
-
-    this.updateProductInfo(product);
-    this.updateProductPricing(product);
-    this.updateRatingDisplay(product.rating, product.reviewCount);
-  }
-
-  updateProductInfo(product) {
-    const elements = {
-      productTitle: product.title,
-      productSku: product.sku,
-      productDescription: product.description,
-    };
-
-    Object.entries(elements).forEach(([id, value]) => {
-      const element = document.getElementById(id);
-      if (element) element.textContent = value;
-    });
-  }
-
-  updateProductPricing(product) {
-    const currentPriceEl = document.getElementById("currentPrice");
-    const originalPriceEl = document.getElementById("originalPrice");
-
-    if (currentPriceEl) {
-      currentPriceEl.textContent = `₹${product.price.toLocaleString()}`;
-    }
-    if (product.originalPrice && originalPriceEl) {
-      originalPriceEl.textContent = `₹${product.originalPrice.toLocaleString()}`;
-      originalPriceEl.style.display = "inline";
-    }
-  }
-
-  updateRatingDisplay(rating, reviewCount) {
-    const starsContainer = document.getElementById("ratingStars");
-    const ratingCountEl = document.getElementById("ratingCount");
-
-    if (starsContainer) {
-      starsContainer.innerHTML = this.generateStarsHTML(rating);
-    }
-    if (ratingCountEl) {
-      ratingCountEl.textContent = `(${reviewCount} reviews)`;
-    }
-  }
-
-  generateStarsHTML(rating) {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    let starsHTML = "";
-
-    for (let i = 0; i < fullStars; i++) {
-      starsHTML += '<i class="bi bi-star-fill"></i>';
+    // Ensure thumbnail is visible (only for vertical layout)
+    if (window.innerWidth > 991.98) {
+      this.ensureThumbnailVisible(imageIndex);
     }
 
-    if (hasHalfStar) {
-      starsHTML += '<i class="bi bi-star-half"></i>';
+    console.log(`Clicked thumbnail ${imageIndex + 1}`);
+  }
+
+  ensureThumbnailVisible(targetIndex) {
+    if (this.carousel.totalItems <= this.carousel.itemsVisible) return;
+
+    const currentStart = this.carousel.currentIndex;
+    const currentEnd = currentStart + this.carousel.itemsVisible - 1;
+
+    if (targetIndex < currentStart) {
+      this.carousel.currentIndex = targetIndex;
+    } else if (targetIndex > currentEnd) {
+      this.carousel.currentIndex = Math.min(
+        targetIndex - this.carousel.itemsVisible + 1,
+        this.carousel.totalItems - this.carousel.itemsVisible
+      );
     }
 
-    for (let i = 0; i < emptyStars; i++) {
-      starsHTML += '<i class="bi bi-star"></i>';
-    }
-
-    return starsHTML;
+    this.updateCarouselPosition();
+    this.updateNavigationButtons();
   }
 
   initializeQuantityControls() {
@@ -1631,47 +1504,45 @@ class ProductDetailPage {
     const minusBtn = document.querySelector(".product-view-quantity-btn.minus");
     const plusBtn = document.querySelector(".product-view-quantity-btn.plus");
 
-    if (quantityInput) {
-      quantityInput.value = this.currentQuantity;
-    }
-    if (minusBtn) {
+    if (quantityInput) quantityInput.value = this.currentQuantity;
+    if (minusBtn)
       minusBtn.addEventListener("click", () => this.updateQuantity(-1));
-    }
-    if (plusBtn) {
+    if (plusBtn)
       plusBtn.addEventListener("click", () => this.updateQuantity(1));
-    }
   }
 
   updateQuantity(change) {
     const newQuantity = this.currentQuantity + change;
     if (newQuantity >= 1 && newQuantity <= 10) {
       this.currentQuantity = newQuantity;
-      const quantityInput = document.querySelector(
-        ".product-view-quantity-input"
-      );
-      if (quantityInput) {
-        quantityInput.value = this.currentQuantity;
-      }
+      const input = document.querySelector(".product-view-quantity-input");
+      if (input) input.value = this.currentQuantity;
     }
   }
 
-  initializeVariantSelection() {
-    // Add variant selection logic if needed
-  }
-
-  loadRelatedProducts() {
-    // Add related products logic if needed
-  }
-
   bindEvents() {
-    // Add other event bindings if needed
+    // Thumbnail clicks
+    document.addEventListener("click", (e) => {
+      if (e.target.closest(".thumbnail-wrapper")) {
+        this.handleThumbnailClick(e.target.closest(".thumbnail-wrapper"));
+      }
+    });
+
+    // Image zoom
+    document.addEventListener("click", (e) => {
+      if (e.target.closest(".main-image-wrapper .main-image")) {
+        if (!this.carousel.isVideoShowing) {
+          // Add zoom modal logic here
+          console.log("Zoom image");
+        }
+      }
+    });
   }
 }
 
 // Initialize
 document.addEventListener("DOMContentLoaded", () => {
-  const productDetailPage = new ProductDetailPage();
-  window.ProductDetailPage = productDetailPage;
+  new ProductDetailPage();
 });
 
 // wishlist sample data
@@ -3232,84 +3103,84 @@ document.addEventListener("DOMContentLoaded", function () {
       name: "Elegant Gold Bangles Set",
       category: "Bangles",
       price: "₹2,850",
-      image: "images/bangles1.webp",
+      image: "images/bangles.webp",
     },
     {
       id: 2,
       name: "Diamond Stud Earrings",
       category: "Earrings",
       price: "₹4,999",
-      image: "images/earrings1.webp",
+      image: "images/diamond-earings.webp",
     },
     {
       id: 3,
       name: "Pearl Drop Earrings",
       category: "Earrings",
       price: "₹2,649",
-      image: "images/earrings2.webp",
+      image: "images/pearl-earings.webp",
     },
     {
       id: 4,
       name: "Kundan Necklace Set",
       category: "Necklaces",
       price: "₹3,999",
-      image: "images/necklace1.webp",
+      image: "images/kundan-necklace-set.webp",
     },
     {
       id: 5,
       name: "Silver Cocktail Ring",
       category: "Rings",
       price: "₹899",
-      image: "images/ring1.webp",
+      image: "images/silver-ring.webp",
     },
     {
       id: 6,
       name: "Traditional Anklets",
       category: "Anklets",
       price: "₹1,199",
-      image: "images/anklets1.webp",
+      image: "images/traditional-anklets.webp",
     },
     {
       id: 7,
       name: "Oxidized Silver Bangles",
       category: "Bangles",
       price: "₹1,599",
-      image: "images/bangles2.webp",
+      image: "images/oxidized-silver-bangles.webp",
     },
     {
       id: 8,
       name: "Jhumka Earrings",
       category: "Earrings",
       price: "₹1,799",
-      image: "images/jhumka1.webp",
+      image: "images/jhumka-earrings.webp",
     },
     {
       id: 9,
       name: "Gold Plated Chain",
       category: "Necklaces",
       price: "₹2,299",
-      image: "images/chain1.webp",
+      image: "images/necklaces.webp",
     },
     {
       id: 10,
       name: "Bridal Jewelry Set",
       category: "Sets",
       price: "₹8,999",
-      image: "images/bridal1.webp",
+      image: "images/pearl-pendant-set.webp",
     },
     {
       id: 11,
       name: "Diamond Pendant",
       category: "Pendants",
       price: "₹5,499",
-      image: "images/pendant1.webp",
+      image: "images/pendants.webp",
     },
     {
       id: 12,
-      name: "Temple Jewelry Set",
-      category: "Sets",
-      price: "₹6,799",
-      image: "images/temple1.webp",
+      name: "Stone Bangles",
+      category: "Bangles",
+      price: "₹9,799",
+      image: "images/stone-bangle.webp",
     },
   ];
 
